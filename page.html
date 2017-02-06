@@ -1,0 +1,190 @@
+<html>
+<body>
+<span></span>
+<div id='page_login' class='page'>
+<h3>login</h3>
+<button id='mock'>mock</button>
+<button id='exam'>exam</button>
+</div>
+<div id='page_mock' class='page'>
+<h3>mock</h3>
+<button id='countSubmit'>submit</button>
+</div>
+
+<div id='page_count' class='page'>
+<h3>count down</h3>
+<button id='backBtn'>back to login</button>
+</div>
+<div id='page_wait' class='page'>
+<h3>wait
+</h3>
+<button id='waitSubmit'>submit</button>
+</div>
+<div id='page_exam' class='page'>
+<h3>exam</h3>
+<button id='examSubmit'>submit</button>
+</div>
+
+
+<style>
+.page{
+  width:300px;
+  height:300px;
+  background:#fff;
+  border:1px solid #000;
+  display:none;
+}
+</style>
+
+<script src= "https://cdnjs.cloudflare.com/ajax/libs/mobx/3.1.0/mobx.umd.js"></script>
+<script src= "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+
+<script>
+var state = mobx.observable({
+  current:0,
+  targetTime:10,
+  get timeUp(){
+  		return this.current >this.targetTime;
+  },
+  pageStore :{
+    showPage:'page_login',
+    login:0,
+    mock:0,
+    count:0,
+    page_wait:0,
+    page_exam:0
+	}
+});
+
+$(function(){
+
+  var layout = new (function(){
+      this.init=function(){
+        mobx.autorun(this.changePage.bind(this));
+      }
+      this.changePage=function(){
+        var pageId = state.pageStore.showPage;
+        $('.page').hide();
+        $('#'+pageId).show();
+      }
+      this.init();	
+
+  })();
+
+  var page_mock = new (function(){
+  
+      this.init=function(){
+      	mobx.autorun(this.gotoWait.bind(this));
+        this.btnAct();
+      }
+      
+      this.btnAct = function(){
+        $('#mockSubmit').click(function(){
+              state.pageStore.showPage = 'page_count';
+        });
+      }
+
+      this.gotoWait = function(){
+      	  if(state.timeUp && state.pageStore.showPage=='page_mock'){
+          	state.pageStore.showPage = 'page_wait';
+          }
+      }
+
+      this.page_wait 
+      this.init();
+      
+  })();
+
+  var page_wait = new (function(){
+  
+      this.init=function(){
+        this.btnAct();
+      }
+      
+      this.btnAct = function(){
+        $('#waitSubmit').click(function(){
+              state.pageStore.showPage = 'page_exam';
+        });
+      }
+      this.init();
+      
+  })();
+
+
+  var page_count = new (function(){
+  
+      this.init=function(){
+        mobx.autorun(this.gotoWait.bind(this));
+        this.btnAct();
+      }
+      
+      this.btnAct = function(){
+        $('#backBtn').click(function(){
+              state.pageStore.showPage = 'page_login';
+        });
+      }
+      
+      this.gotoWait = function(){
+      	  if(state.timeUp && state.pageStore.showPage=='page_count'){
+          	state.pageStore.showPage = 'page_wait';
+          }
+      }
+
+      this.init();
+      
+  })();
+
+
+  var page_login = new (function(){
+  
+      this.init=function(){
+        mobx.autorun(this.hideMockBtn.bind(this));
+        mobx.autorun(this.defindExamBtnLink.bind(this));
+        this.btnAct();
+      }
+      
+      this.btnAct = function(){
+        $('#mock').click(function(){
+              state.pageStore.showPage = 'page_mock';
+        });
+        $('#exam').click(function(){
+              state.pageStore.showPage = $(this).attr('linkTo');
+        });
+      }
+      
+      this.hideMockBtn = function(){
+      	  if(state.timeUp){
+          	$('#mock').hide();
+          }else{
+          	$('#mock').show();
+          }
+      }
+
+      this.defindExamBtnLink = function(){
+      		var linkTo = 'page_count';
+      		if(state.timeUp){
+      			linkTo = 'page_wait';
+            }
+            $('#exam').attr('linkTo',linkTo)
+            
+      }
+      this.init();
+      
+  })();
+  
+  
+
+
+
+  var timer = (function(){
+      setInterval(function(){ 
+      	$('span').text(state.current);
+        state.current = state.current + 1;
+       }, 800);
+  })();
+ 
+
+});
+</script>
+</body></html>
+
