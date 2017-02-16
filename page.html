@@ -51,122 +51,248 @@
 
 <script src= "https://cdnjs.cloudflare.com/ajax/libs/mobx/3.1.0/mobx.umd.js"></script>
 <script src= "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 <script>
-var state = mobx.observable({
-  current:0,
-  targetTime:10,
-  get timeUp(){
-  		return this.current >this.targetTime;
-  },
-  pageStore :{
-    showPage:'page_login',
-    login:0,
-    mock:0,
-    count:0,
-    page_wait:0,
-    page_exam:0
-	}
+
+store = {};
+store.timer = new(function(){
+
+     this.data = mobx.observable({
+        current:0,
+        targetTime:10,
+        get timeUp(){
+          return this.current > this.targetTime
+        }
+     });
+
+      this.setCurrent = mobx.action(function(a) {
+        this.data.current = a;
+      });
+   
+
+})();
+mobx.autorun(function(){
+
+  //console.log('autorun',store.timer1.data.timeUp);
 });
+
+
+
+
+
+
+
+store.page = {
+    lists: mobx.observable({
+        login:0,
+        mock:0,
+        count:0,
+        page_wait:0,
+        page_exam:0,
+    }),
+
+    showPage:mobx.observable('page_login'),
+
+    setPage:mobx.action(
+        function(p){
+        store.page.showPage.set(p);
+        })
+};
+
+
 
 $(function(){
 
-  var layout = new (function(){
+var comp = {};
+
+var createC = function(comp){
+      this.extend = function(obj,superClass){
+          obj.prototype = new superClass();
+          obj.prototype.constructor = obj;
+          return obj;
+      }
+      
+      this.baseComponent = function(){
+        this.name = null;
+        this.childs =[];
+        this.parent = null;
+       
+        this.componentDidUpdate = function(){ }
+        //this.init = function(){ }
+        this.addMobxReaction = function(fn){
+            mobx.autorun(fn);
+        }
+        this.displayTree = function(deep){
+            deep = deep || '-';
+            console.log(deep + this.name);
+            deep += '-';
+
+            _.each(this.childs,function(comp){
+                comp.displayTree(deep);
+            })
+        }
+        this.add = function(ChildCompClass,props){
+
+          var childComp = new ChildCompClass();
+
+          childComp.parent = this;
+         
+          childComp.init(props);
+          
+          this.childs.push(childComp);
+          
+        }
+      }
+      var Comp = this.extend(comp,this.baseComponent);
+  
+      return Comp;
+}
+
+comp.rootClass = createC(function(){
+      this.name = 'root';
+
+      this.init = function(){
+        this.add(comp.header);
+     
+      }
+    
+});
+
+
+comp.header = createC(function(){
+      this.name = 'header';
+
+      this.init =function(props){
+        this.add(comp.timer);
+        this.add(comp.footer);
+        
+       
+        this.addMobxReaction(this.render);
+      }
+
+      this.render = function(){
+          if(store.page.showPage == 'page_count'){
+              console.log('pageStore.showPage change to page_count')
+          }
+
+      }
+
+})
+
+
+
+comp.footer = createC(function(){
+      this.name = 'footer';
       this.init=function(){
-        mobx.autorun(this.changePage.bind(this));
+         this.add(comp.layout);
+      }
+});
+
+
+comp.layout = createC(function(){
+      this.name = 'layout';
+      this.init = function(){
+        this.add(comp.page_mock);
+        this.add(comp.page_wait);
+        this.add(comp.page_count);
+        this.add(comp.page_login);
+
+        this.addMobxReaction(this.changePage.bind(this));
       }
       this.changePage=function(){
-        var pageId = state.pageStore.showPage;
+        var pageId = store.page.showPage;
         $('.page').hide();
         $('#'+pageId).show();
       }
-      this.init();	
+});
 
-  })();
 
-  var page_mock = new (function(){
-  
+comp.page_mock =  createC(function(){
+      this.name = 'page_mock';
       this.init=function(){
-      	mobx.autorun(this.gotoWait.bind(this));
+      	this.addMobxReaction(this.gotoWait.bind(this));
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#mockSubmit').click(function(){
-              state.pageStore.showPage = 'page_count';
+            store.page.setPage('page_count')
         });
       }
 
       this.gotoWait = function(){
-      	  if(state.timeUp && state.pageStore.showPage=='page_mock'){
-          	state.pageStore.showPage = 'page_wait';
+      	  if(store.timer.data.timeUp && store.page.showPage=='page_mock'){
+            store.page.setPage('page_wait');
           }
       }
 
-      this.page_wait 
-      this.init();
+ 
       
-  })();
+  });
 
-  var page_wait = new (function(){
-  
+comp.page_wait = createC(function(){
+      this.name = 'page_wait';
       this.init=function(){
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#waitSubmit').click(function(){
-              state.pageStore.showPage = 'page_exam';
+              
+              store.page.setPage('page_exam');
         });
       }
-      this.init();
+    
       
-  })();
+  });
 
 
-  var page_count = new (function(){
-  
+comp.page_count = createC(function(){
+      this.name = 'page_count';
       this.init=function(){
-        mobx.autorun(this.gotoWait.bind(this));
+        this.addMobxReaction(this.gotoWait.bind(this));
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#backBtn').click(function(){
-              state.pageStore.showPage = 'page_login';
+              store.page.setPage('page_login');
         });
       }
       
       this.gotoWait = function(){
-      	  if(state.timeUp && state.pageStore.showPage=='page_count'){
-          	state.pageStore.showPage = 'page_wait';
+      	  if(store.timer.data.timeUp && store.page.showPage=='page_count'){
+            store.page.setPage('page_wait');
           }
       }
 
-      this.init();
+     
       
-  })();
+  });
 
 
-  var page_login = new (function(){
-  
+comp.page_login = createC(function(){
+      this.name = 'page_login';
       this.init=function(){
-        mobx.autorun(this.hideMockBtn.bind(this));
-        mobx.autorun(this.defindExamBtnLink.bind(this));
+        this.addMobxReaction(this.hideMockBtn.bind(this));
+        this.addMobxReaction(this.defindExamBtnLink.bind(this));
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#mock').click(function(){
-              state.pageStore.showPage = 'page_mock';
+             
+              store.page.setPage('page_mock');
         });
         $('#exam').click(function(){
-              state.pageStore.showPage = $(this).attr('linkTo');
+              store.page.setPage($(this).attr('linkTo'));
+              
         });
       }
       
       this.hideMockBtn = function(){
-      	  if(state.timeUp){
+        console.log(store.timer.data.timeUp);
+      	  if(store.timer.data.timeUp){
           	$('#mock').hide();
           }else{
           	$('#mock').show();
@@ -175,26 +301,41 @@ $(function(){
 
       this.defindExamBtnLink = function(){
       		var linkTo = 'page_count';
-      		if(state.timeUp){
+      		if(store.timer.data.timeUp){
       			linkTo = 'page_wait';
             }
             $('#exam').attr('linkTo',linkTo)
             
       }
-      this.init();
       
-  })();
+      
+  });
   
-  
+  comp.timer = createC(function(){
+      this.name = 'timer';
+      this.init = function(){
+
+
+      setInterval(function(){
+            store.timer.setCurrent(store.timer.data.current + 1) 
+          }, 800);
+
+        this.addMobxReaction(this.updateTimerDisplay.bind(this));
+      }
+
+      this.updateTimerDisplay=function(){
+
+        $('span').text(store.timer.data.current);
+      }
+  });
 
 
 
-  var timer = (function(){
-      setInterval(function(){ 
-      	$('span').text(state.current);
-        state.current = state.current + 1;
-       }, 800);
-  })();
+ var app = new comp.rootClass();
+ app.init();
+ app.displayTree();
+
+
  
 
 });
