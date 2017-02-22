@@ -79,6 +79,7 @@ class Foo {
         this.length = Math.sqrt(value);
     }
 }
+
 //sample 3
 kk = mobx.observable({ 
 	last2: mobx.computed(function(){
