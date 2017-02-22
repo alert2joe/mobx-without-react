@@ -30,19 +30,21 @@ temperature.set(25);
 var numbers = mobx.observable([1]);
 var last = mobx.computed(
   function(){
-		return numbers[numbers.length-1];
+	return numbers[numbers.length-1];
         //返回最新加入的ARRAY的值。
   }
 );
 
 mobx.autorun(function(){
 // 如果用 last.get(); 
-// 期望每一次PUSH都會執行這個 autorun
- console.log(last.get())
+// 期望每一次PUSH都會執行這個 autorun,是錯的。
+//
+ console.log(last.get())  //這裡 last只是mobx的OBJ，要用get才能取值。
  //do something ... 
 });
 ```
-因為只比對返回值，所以
+因為只比對返回值，所以重複加入相同時不會trigger autorun， 
+這情況於AUTORUN 直接用numbers.length 會比較合期望。但numbers.push(9999)一樣也不會觸發到，因為在runInAction中。
 ```
 numbers.push(0); //will trigger 
 numbers.push(1); //will trigger 
