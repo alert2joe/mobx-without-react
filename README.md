@@ -96,3 +96,19 @@ var ABC = mobx.computed(
 
 
 ```
+##observe
+```
+const person = observable({
+    firstName: "Maarten",
+    lastName: "Luther"
+});
+
+const disposer = observe(person, (change) => {
+    console.log(change.type, change.name, "from", change.oldValue, "to", change.object[change.name]);
+});
+
+// observe a single field
+const disposer2 = observe(person, "lastName", (change) => {
+    console.log("LastName changed to ", change.newValue);
+});
+```
