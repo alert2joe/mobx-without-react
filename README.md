@@ -55,3 +55,43 @@ mobx.runInAction(() => {
         numbers.push(4);//will not trigger
     });
 ```
+
+##computed smaple
+```
+//sample 1
+ box = mobx.observable({
+    length: 2,
+    get squared() {
+        return this.length * this.length;
+    },
+    set squared(value) {
+        this.length = Math.sqrt(value);
+    }
+});
+
+//sample 2
+class Foo {
+    @observable length: 2,
+    @computed get squared() {
+        return this.length * this.length;
+    }
+    set squared(value) { //this is automatically an action, no annotation necessary
+        this.length = Math.sqrt(value);
+    }
+}
+//sample 3
+kk = mobx.observable({ 
+	last2: mobx.computed(function(){
+    return message.title+'last2'; 
+  })
+})
+
+//sample 4  //use ABC.get()
+var ABC = mobx.computed(
+  function(){
+      return message.title +'last';   
+  }
+);
+
+
+```
