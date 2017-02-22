@@ -23,3 +23,33 @@ number,string 則要用 set，get 。
 temperature = observable(20);
 temperature.set(25);
 ```
+
+##computed
+只比對變化前及變化后的返回值有否不同而去決定 會否有 執行 autorun，以下是錯的
+```
+var numbers = mobx.observable([1]);
+var last = mobx.computed(
+  function(){
+		return numbers[numbers.length-1];
+        //返回最新加入的ARRAY的值。
+  }
+);
+
+mobx.autorun(function(){
+// 如果用 last.get(); 
+// 期望每一次PUSH都會執行這個 autorun
+ console.log(last.get())
+ //do something ... 
+});
+```
+因為只比對返回值，所以
+```
+numbers.push(0); //will trigger 
+numbers.push(1); //will trigger 
+numbers.push(1); //will not trigger 
+numbers.push(4); //will trigger  
+mobx.runInAction(() => {
+        numbers.push(9999);
+        numbers.push(4);//will not trigger
+    });
+```
