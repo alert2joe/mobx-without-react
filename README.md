@@ -2,14 +2,16 @@
 
 mobx 備忘
 
-autorun(fn): 定義：當上一次執行fn時所運行的observable有改動時會執行一次；
-
-
-
-
-
-
-
+autorun(fn): 當上一次執行fn時所運行的observable有改動時會執行一次fn；
+		** 上一次 （不是每一次，也不是第一次）
+		** 有改動  (extendObservable 不算改動)
+		** 有改動  (相同內容不算改動)
+			
+			
+			
+			
+			
+			
 ##observable
 arrays, classes 和 objects  可以直接 用 ＝ 去設定值 或取值
 ```
