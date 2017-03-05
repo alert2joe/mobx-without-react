@@ -1,18 +1,18 @@
 
-var comp = {};
+rs.comp = {};
 
 
-comp.rootClass = createC(function(){
+rs.comp.rootClass = rs.createC(function(){
       this.name = 'root';
       this.init = function(){
-        this.add(comp.layout);
-        this.add(comp.timer);
-        this.add(comp.htmlDom);
+        this.add(rs.comp.layout);
+        this.add(rs.comp.timer);
+        this.add(rs.comp.htmlDom);
       }
     
 });
 
-comp.htmlDom = createC(function(){
+rs.comp.htmlDom = rs.createC(function(){
       this.name = 'htmlDom';
       
       this.init = function(){
@@ -26,7 +26,7 @@ comp.htmlDom = createC(function(){
       }
       
        this.changeA=function(){
-           if( store.timer.data.current == 5){
+           if( rs.store.timer.data.current == 5){
               this.state.bg = '#eee';
           } 
         } 
@@ -40,40 +40,40 @@ comp.htmlDom = createC(function(){
 
 
 
-comp.layout = createC(function(){
+rs.comp.layout = rs.createC(function(){
       this.name = 'layout';
       this.init = function(){
-        this.add(comp.page_mock);
-        this.add(comp.page_wait);
-        this.add(comp.page_count);
-        this.add(comp.page_login);
+        this.add(rs.comp.page_mock);
+        this.add(rs.comp.page_wait);
+        this.add(rs.comp.page_count);
+        this.add(rs.comp.page_login);
 
-        this.addMobxReaction(this.changePage.bind(this));
+        this.addMobxReaction('layout.changePage',this.changePage.bind(this));
       }
       this.changePage=function(){
-        var pageId = store.page.showPage;
+        var pageId = rs.store.page.showPage;
         $('.page').hide();
         $('#'+pageId).show();
       }
 });
 
 
-comp.page_mock =  createC(function(){
+rs.comp.page_mock =  rs.createC(function(){
       this.name = 'page_mock';
       this.init=function(){
-      	this.addMobxReaction(this.gotoWait.bind(this));
+        this.addMobxReaction('page_mock.gotoWait',this.gotoWait.bind(this));
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#mockSubmit').click(function(){
-            store.page.setPage('page_count')
+            rs.store.page.setPage('page_count')
         });
       }
 
       this.gotoWait = function(){
-      	  if(store.timer.data.timeUp && store.page.showPage=='page_mock'){
-            store.page.setPage('page_wait');
+          if(rs.store.timer.data.timeUp && rs.store.page.showPage=='page_mock'){
+            rs.store.page.setPage('page_wait');
           }
       }
 
@@ -81,7 +81,7 @@ comp.page_mock =  createC(function(){
       
   });
 
-comp.page_wait = createC(function(){
+rs.comp.page_wait = rs.createC(function(){
       this.name = 'page_wait';
       this.init=function(){
         this.btnAct();
@@ -90,7 +90,7 @@ comp.page_wait = createC(function(){
       this.btnAct = function(){
         $('#waitSubmit').click(function(){
               
-              store.page.setPage('page_exam');
+              rs.store.page.setPage('page_exam');
         });
       }
     
@@ -98,22 +98,22 @@ comp.page_wait = createC(function(){
   });
 
 
-comp.page_count = createC(function(){
+rs.comp.page_count = rs.createC(function(){
       this.name = 'page_count';
       this.init=function(){
-        this.addMobxReaction(this.gotoWait.bind(this));
+        this.addMobxReaction('page_count.gotoWait',this.gotoWait.bind(this));
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#backBtn').click(function(){
-              store.page.setPage('page_login');
+              rs.store.page.setPage('page_login');
         });
       }
       
       this.gotoWait = function(){
-      	  if(store.timer.data.timeUp && store.page.showPage=='page_count'){
-            store.page.setPage('page_wait');
+          if(rs.store.timer.data.timeUp && rs.store.page.showPage=='page_count'){
+            rs.store.page.setPage('page_wait');
           }
       }
 
@@ -122,36 +122,36 @@ comp.page_count = createC(function(){
   });
 
 
-comp.page_login = createC(function(){
+rs.comp.page_login = rs.createC(function(){
       this.name = 'page_login';
       this.init=function(){
-        this.addMobxReaction(this.hideMockBtn.bind(this));
-        this.addMobxReaction(this.defindExamBtnLink.bind(this));
+        this.addMobxReaction('page_login.hideMockBtn',this.hideMockBtn.bind(this));
+        this.addMobxReaction('page_login.defindExamBtnLink',this.defindExamBtnLink.bind(this));
         this.btnAct();
       }
       
       this.btnAct = function(){
         $('#mock').click(function(){
-              store.page.setPage('page_mock');
+              rs.store.page.setPage('page_mock');
         });
         $('#exam').click(function(){
-              store.page.setPage($(this).attr('linkTo'));
+              rs.store.page.setPage($(this).attr('linkTo'));
               
         });
       }
       
       this.hideMockBtn = function(){
-      	  if(store.timer.data.timeUp){
-          	$('#mock').hide();
+          if(rs.store.timer.data.timeUp){
+            $('#mock').hide();
           }else{
-          	$('#mock').show();
+            $('#mock').show();
           }
       }
 
       this.defindExamBtnLink = function(){
-      		var linkTo = 'page_count';
-      		if(store.timer.data.timeUp){
-      			linkTo = 'page_wait';
+          var linkTo = 'page_count';
+          if(rs.store.timer.data.timeUp){
+            linkTo = 'page_wait';
             }
           $('#exam').attr('linkTo',linkTo)
             
@@ -160,29 +160,28 @@ comp.page_login = createC(function(){
       
   });
   
-  comp.timer = createC(function(){
+  rs.comp.timer = rs.createC(function(){
       this.name = 'timer';
       this.init = function(){
 
       setInterval(function(){
-            store.timer.setCurrent(store.timer.data.current + 1) 
+            rs.store.timer.setCurrent(rs.store.timer.data.current + 1) 
           }, 800);
 
-        this.addMobxReaction(this.updateTimerDisplay.bind(this));
+        this.addMobxReaction('updateTimerDisplay',this.updateTimerDisplay.bind(this));
       }
 
       this.updateTimerDisplay = function(){
-        $('span').text(store.timer.data.current);
+        $('span').text(rs.store.timer.data.current);
         
       }
  
   });
 
 
- var app = new comp.rootClass();
+ var app = new rs.comp.rootClass();
  app.superInit();
  app.displayTree();
 
 
  
-

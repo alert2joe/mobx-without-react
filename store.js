@@ -1,7 +1,7 @@
 
-store = {};
+rs.store = {};
 
-store.timer = new(function(){
+rs.store.timer = new(function(){
 
      this.data = mobx.observable({
         current:0,
@@ -19,7 +19,7 @@ store.timer = new(function(){
 });
 
 
-store.page = {
+rs.store.page = {
     lists: mobx.observable({
         login:0,
         mock:0,
@@ -32,7 +32,7 @@ store.page = {
 
     setPage:mobx.action('setPage',
         function(p){
-        store.page.showPage.set(p);
+        rs.store.page.showPage.set(p);
     })
 };
 

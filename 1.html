@@ -1,0 +1,53 @@
+<html>
+<body>
+
+
+<script src= "https://cdnjs.cloudflare.com/ajax/libs/mobx/3.1.0/mobx.umd.js"></script>
+<script src= "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+
+
+<script>
+mobx.spy((event) => {	
+    console.log(event)
+})
+
+var button = mobx.observable({
+	ba:[3,5],
+    ac:{
+      a:'',
+      b:'',
+      c:''
+    },
+    setaction : mobx.computed(function (){
+       return this.ac.a + this.ac.b
+    }),
+    setaction2 : mobx.action(function (newAction){
+        this.ba.push(newAction);
+    })
+    
+});
+/*
+mobx.autorun(function(){
+		 button.ac.a;
+   var a = button.ba[button.ba.length-1];
+   if(a.a=='abc'){
+  			console.log('run');
+   }
+  	console.log(a);
+})
+
+
+$(function(){
+  $('a').click(function(){
+  	button.ac='o'	           //button.setaction({a:$(this).data('a'),b:'xxx',d:'kkk'})
+  })
+})
+*/
+
+
+
+</script>
+</body></html>
+
